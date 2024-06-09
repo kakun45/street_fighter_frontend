@@ -38,10 +38,10 @@
 
     // IDs
     const edges = [
-      { start: 1, end: 4 },
-      { start: 1, end: 3 },
-      { start: 4, end: 2 },
-      { start: 3, end: 2 },
+      { startId: 2, endId: 4 },
+      { startId: 3, endId: 4 },
+      { startId: 1, endId: 3 },
+      { startId: 1, endId: 2 },
     ];
 
     // ===================== FRONTEND =====================
@@ -51,9 +51,9 @@
       {
         action: actions[0],
         position: [140, 5], // x, y
+        nodeSize: textToNodeSize(actions[0].content), //nodeSize: [100w, 20h],
         // topMiddlePos: [190, 5], // todo: Fn(position, nodeSize) to return this
         // bottomMiddlePos: [190, 25], // todo: Fn(position, nodeSize) to return this
-        nodeSize: textToNodeSize(actions[0].content), //nodeSize: [100w, 20h],
         // wDepth: 5,
       },
       {
@@ -73,9 +73,17 @@
       },
     ];
 
-    // Fn calculating topMiddlePos & bottomMiddlePos based on nodeSize
-    // const getMiddlesOfNodes = (node) => {}
+    // nodesById is a dictionary of node_id -> node. lookup nodes==id
+    const nodesById = {};
+    nodes.forEach((node) => {
+      nodesById[node.action.id] = node;
+    });
+    console.log("nodesById", nodesById);
 
+    // measures len(monospaced_text)*px of one letter + padding*2 for L&R
+    // const font = "13px 'Roboto Mono'"; // Font used for measuring text width
+    // const texWidth = measureTextWidth(nodeText, font); //, font); // Measure text width
+    // rectWidth = texWidth + 2 * padding; // Calculate rect width with padding
     // Fn calculates the size given a text, return arr [w, h] in standard order: w&h x&y
     function textToNodeSize(text) {
       // Calculate <rect> width: measure text add 2ce of padding on the sides
@@ -120,19 +128,55 @@
       return newCanvas;
     };
 
+    // given a node return topMiddle position of the node
+    const getTopMiddlePos = (node) => {
+      const [x, y] = node.position,
+        width = node.nodeSize[0],
+        midX = x + width / 2;
+      return [midX, y];
+    };
+    // given a node return bottomMiddle position of the node
+    const getBottomMiddlePos = (node) => {
+      const [x, y] = node.position,
+        h = node.nodeSize[1], // height
+        w = node.nodeSize[0], // width
+        midX = x + w / 2,
+        bottomY2 = y + h;
+      return [midX, bottomY2];
+    };
+
+    // draw an edge given a start id and end id
+    const createEdgeObj = (fromNode, toNode) => {
+      const [fromX, fromY] = getBottomMiddlePos(fromNode),
+        [toX, toY] = getTopMiddlePos(toNode);
+      const strokeWidth = 6,
+        color = "blue",
+        newLine = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "line"
+        ); //Create a Line in SVG's namespace
+
+      newLine.setAttribute("x1", fromX); // horizontally: from
+      newLine.setAttribute("x2", toX); // horizontally: to
+      newLine.setAttribute("y1", fromY); // vertically: from
+      newLine.setAttribute("y2", toY); // vertically: to
+      newLine.setAttribute("stroke", color);
+      newLine.setAttribute("stroke-width", strokeWidth);
+      return newLine;
+    };
+
     const createLineObj = (x1, x2, y1, y2, color) => {
-      const strokeWidth = 3;
-      let newLine = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "line"
-      ); //Create a Line in SVG's namespace
-      newLine.setAttribute("x1", x1); // horizontally: from
-      newLine.setAttribute("x2", x2); // horizontally: to
+      const strokeWidth = 3,
+        newLine = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "line"
+        ); //Create a Line in SVG's namespace
+      newLine.setAttribute("x1", x1); // from
+      newLine.setAttribute("x2", x2); // to
       newLine.setAttribute("y1", y1);
       newLine.setAttribute("y2", y2);
       newLine.setAttribute("stroke", color);
       newLine.setAttribute("stroke-width", strokeWidth);
-
       return newLine;
     };
 
@@ -159,10 +203,6 @@
         gFill = "white", // fill color of all grouped elements
         padding = 10; // padding for nodeText on both sides
 
-      // measures len(monospaced_text)*px of one letter + padding*2 for L&R
-      // const font = "13px 'Roboto Mono'"; // Font used for measuring text width
-      // const texWidth = measureTextWidth(nodeText, font); //, font); // Measure text width
-      // rectWidth = texWidth + 2 * padding; // Calculate rect width with padding
       const [w, h] = textToNodeSize(nodeText);
       // Create and set up the <rect> & <text> elements
       let newGroup = document.createElementNS(
@@ -177,7 +217,7 @@
         "http://www.w3.org/2000/svg",
         "text"
       ); // Create a <text> in SVG's namespace
-      console.log(177, rectX, rectY, w, h);
+
       newRect.setAttribute("width", w);
       newRect.setAttribute("height", h);
       newRect.setAttribute("x", rectX);
@@ -206,7 +246,6 @@
       console.log("page is fully loaded");
 
       // let svg = document.getElementsByTagName("svg")[0]; //Get 1st <svg> element
-      // Centering everything in an SVG can be achieved by calculating the center of the SVG container and then positioning each element relative to this center. Introducing a grandCentralX is indeed a good approach.
       let svg = document.getElementById("svg-container");
       // Get the center X coordinate of the scv
       let svgWidth = svg.clientWidth;
@@ -234,79 +273,30 @@
       // svg.appendChild(createSvgCanvas({ id: "test_id" }));
 
       // ============== DRAW EDGES ==============
-      // (!) Fn do NOT support named args or disodered args, order is critical, skip - impossible
-      // args are: x1, x2, y1, y2, color
-      svg.appendChild(
-        createLineObj(
-          190,
-          190,
-          levelNumToOffsetY(2),
-          levelNumToOffsetY(3),
-          "green"
-        )
-      ); // GenIV M child: Line from Grandchild to GenIV
-      svg.appendChild(
-        createLineObj(
-          190,
-          320,
-          levelNumToOffsetY(2),
-          levelNumToOffsetY(3),
-          "purple"
-        )
-      ); // GenIV R child: Line from Grandchild to GenIV
-      svg.appendChild(
-        createLineObj(
-          80,
-          80,
-          levelNumToOffsetY(1),
-          levelNumToOffsetY(3),
-          "lightblue"
-        )
-      ); // L child: Line from L Child to GenIV
-      svg.appendChild(
-        createLineObj(
-          150,
-          150,
-          levelNumToOffsetY(2),
-          levelNumToOffsetY(4),
-          "brown"
-        )
-      ); // GenV: Line from Grandchild to GenV
-      svg.appendChild(
-        createLineObj(
-          80,
-          150,
-          levelNumToOffsetY(3),
-          levelNumToOffsetY(4),
-          "brown"
-        )
-      ); // GenV: Line from GenIV to GenV
-      svg.appendChild(
-        createLineObj(
-          520,
-          150,
-          levelNumToOffsetY(3),
-          levelNumToOffsetY(4),
-          "brown"
-        )
-      ); // GenV: Line from GenIV to GenV
-      svg.appendChild(
-        createLineObj(110, 190, 65, levelNumToOffsetY(2), "yellow")
-      ); // grandchild: Line from L parent
-      svg.appendChild(
-        createLineObj(250, 190, 65, levelNumToOffsetY(2), "orange")
-      ); // grandChild: Line from R parent
-      svg.appendChild(createLineObj(190, 250, 15, levelNumToOffsetY(1), "red")); // R child: Line from Mother
-      svg.appendChild(
-        createLineObj(190, 110, 15, levelNumToOffsetY(1), "blue")
-      ); // L child: Line from Mother
+      edges.forEach((edge) => {
+        const startNode = nodesById[edge.startId],
+          endNode = nodesById[edge.endId];
+        svg.appendChild(createEdgeObj(startNode, endNode));
+      });
+
+      // svg.appendChild(createEdgeObj(nodes[1], nodes[3]));
+      // svg.appendChild(
+      //   createLineObj(250, 190, 65, levelNumToOffsetY(2), "orange")
+      // ); // grandChild: Line from R parent
+      // svg.appendChild(createEdgeObj(nodes[2], nodes[3]));
+      // svg.appendChild(createLineObj(190, 250, 15, levelNumToOffsetY(1), "red")); // R child: Line from Mother
+      // svg.appendChild(createEdgeObj(nodes[0], nodes[2]));
+      // svg.appendChild(
+      //   createLineObj(190, 110, 15, levelNumToOffsetY(1), "blue")
+      // ); // L child: Line from Mother
+      // svg.appendChild(createEdgeObj(nodes[0], nodes[1]));
 
       // Relative Positioning: Each node is positioned relative to this central X coordinate.
       // layout code
       function calculateNodeX(
         node,
         depth,
-        grandCentralX,
+        // grandCentralX,
         centerOfParent = null
       ) {
         // todo:
@@ -330,6 +320,7 @@
       //   )
       // ); // todo: thiS one it centered by a coinsedence, create a Fn to calc. positions of X for Nodes
       svg.appendChild(createNodeObj2(nodes[3]));
+
       // svg.appendChild(
       //   createNodeObj(100, levelNumToOffsetY(4), "GenV child 3 parents")
       // );
@@ -343,13 +334,10 @@
       //   createNodeObj(290, levelNumToOffsetY(3), "GenIV: R child")
       // );
 
-      // svg.appendChild(createNodeObj(40, levelNumToOffsetY(1), "L child"));
       svg.appendChild(createNodeObj2(nodes[1]));
-      // svg.appendChild(createNodeObj(250, levelNumToOffsetY(1), "R child"));
       svg.appendChild(createNodeObj2(nodes[2]));
 
-      svg.appendChild(createNodeObj2(nodes[0]));
-      // svg.appendChild(createNodeObj(140, levelNumToOffsetY(0), "Mothership"));
+      svg.appendChild(createNodeObj2(nodes[0])); // root
     };
   </script>
 

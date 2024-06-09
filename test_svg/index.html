@@ -50,16 +50,31 @@
     const nodes = [
       {
         action: actions[0],
-        position: [140, 5],
+        position: [140, 5], // x, y
         // topMiddlePos: [190, 5], // todo: Fn(position, nodeSize) to return this
         // bottomMiddlePos: [190, 25], // todo: Fn(position, nodeSize) to return this
         nodeSize: textToNodeSize(actions[0].content), //nodeSize: [100w, 20h],
         // wDepth: 5,
       },
+      {
+        action: actions[1],
+        position: [40, 45],
+        nodeSize: textToNodeSize(actions[1].content),
+      },
+      {
+        action: actions[2],
+        position: [250, 45],
+        nodeSize: textToNodeSize(actions[2].content),
+      },
+      {
+        action: actions[3],
+        position: [100, 85],
+        nodeSize: textToNodeSize(actions[3].content),
+      },
     ];
 
-    // Fn calculating bottomMiddlePos based on nodeSize
-    // const getMiddles = () => {}
+    // Fn calculating topMiddlePos & bottomMiddlePos based on nodeSize
+    // const getMiddlesOfNodes = (node) => {}
 
     // Fn calculates the size given a text, return arr [w, h] in standard order: w&h x&y
     function textToNodeSize(text) {
@@ -122,16 +137,23 @@
     };
 
     // create a <text>, create <rect>, attach both to <g> group; return <g>
+    const createNodeObj2 = (node) => {
+      const [rectX, rectY] = node.position,
+        nodeText = node.action.content;
+      return createNodeObj(rectX, rectY, nodeText);
+    };
+
     const createNodeObj = (
       rectX,
       rectY,
-      nodeText = "Your text", // MUST be in monospaced font
-      // rectWidth = 100,
-      // NODEHEIGHT = 20,
-      rectStroke = "black",
-      textColor = "black"
+      nodeText // MUST be in monospaced font
     ) => {
-      const strokeWidth = 2,
+      if (typeof rectX !== "number") {
+        throw new Error(`rectX is not a number rectX=${rectX}`);
+      }
+      const rectStroke = "black", // todo destructure it too
+        textColor = "black",
+        strokeWidth = 2,
         rx = 5, // x rect rounded edge
         ry = 5, // y rect rounded edge
         gFill = "white", // fill color of all grouped elements
@@ -155,7 +177,7 @@
         "http://www.w3.org/2000/svg",
         "text"
       ); // Create a <text> in SVG's namespace
-
+      console.log(177, rectX, rectY, w, h);
       newRect.setAttribute("width", w);
       newRect.setAttribute("height", h);
       newRect.setAttribute("x", rectX);
@@ -300,30 +322,34 @@
       // ============== DRAW NODES ==============
       // (!) Fn do NOT support named args or disodered args, order is critical, skip - impossible
       // args: rectX, rectY, nodeText
-      svg.appendChild(
-        createNodeObj(
-          grandCentralX / 2,
-          levelNumToOffsetY(2),
-          "Grandchild 2 parents"
-        )
-      ); // todo: thiS one it centered by a coinsedence, create a Fn to calc. positions of X for Nodes
-      svg.appendChild(
-        createNodeObj(100, levelNumToOffsetY(4), "GenV child 3 parents")
-      );
-      svg.appendChild(
-        createNodeObj(10, levelNumToOffsetY(3), "GenIV: L child")
-      );
-      svg.appendChild(
-        createNodeObj(160, levelNumToOffsetY(3), "GenIV: M child")
-      );
-      svg.appendChild(
-        createNodeObj(290, levelNumToOffsetY(3), "GenIV: R child")
-      );
+      // svg.appendChild(
+      //   createNodeObj(
+      //     grandCentralX / 2,
+      //     levelNumToOffsetY(2),
+      //     "Grandchild 2 parents"
+      //   )
+      // ); // todo: thiS one it centered by a coinsedence, create a Fn to calc. positions of X for Nodes
+      svg.appendChild(createNodeObj2(nodes[3]));
+      // svg.appendChild(
+      //   createNodeObj(100, levelNumToOffsetY(4), "GenV child 3 parents")
+      // );
+      // svg.appendChild(
+      //   createNodeObj(10, levelNumToOffsetY(3), "GenIV: L child")
+      // );
+      // svg.appendChild(
+      //   createNodeObj(160, levelNumToOffsetY(3), "GenIV: M child")
+      // );
+      // svg.appendChild(
+      //   createNodeObj(290, levelNumToOffsetY(3), "GenIV: R child")
+      // );
 
-      svg.appendChild(createNodeObj(40, levelNumToOffsetY(1), "L child"));
-      svg.appendChild(createNodeObj(250, levelNumToOffsetY(1), "R child"));
+      // svg.appendChild(createNodeObj(40, levelNumToOffsetY(1), "L child"));
+      svg.appendChild(createNodeObj2(nodes[1]));
+      // svg.appendChild(createNodeObj(250, levelNumToOffsetY(1), "R child"));
+      svg.appendChild(createNodeObj2(nodes[2]));
 
-      svg.appendChild(createNodeObj(140, levelNumToOffsetY(0), "Mothership"));
+      svg.appendChild(createNodeObj2(nodes[0]));
+      // svg.appendChild(createNodeObj(140, levelNumToOffsetY(0), "Mothership"));
     };
   </script>
 

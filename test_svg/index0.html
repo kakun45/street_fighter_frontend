@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test of svg</title>
+    <h1>Hello, World!</h1>
+    <div style="background-color: #eeeeff">
+      <script>
+        window.onload = (event) => {
+          console.log("page is fully loaded");
+          let svg = document.getElementsByTagName("svg")[0]; //Get svg 1st element
+
+          const createLineObj = (x1, x2, y1, y2, color) => {
+            const strokeWidth = 3;
+            let newLine = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "line"
+            ); //Create a line in SVG's namespace
+            newLine.setAttribute("x1", x1);
+            newLine.setAttribute("x2", x2);
+            newLine.setAttribute("y1", y1);
+            newLine.setAttribute("y2", y2);
+            newLine.setAttribute("stroke", color);
+            newLine.setAttribute("stroke-width", strokeWidth);
+
+            return newLine;
+          };
+
+          // grandChild: Line from right parent
+          svg.appendChild(createLineObj(250, 190, 65, 85, "blue"));
+          // grandchild: Line from left parent
+          svg.appendChild(createLineObj(110, 190, 65, 85, "yellow"));
+        };
+      </script>
+
+      <svg height="400" width="400" style="border: 10px red; fill: white">
+        <!-- canvas border -->
+        <rect
+          width="400"
+          height="400"
+          x="0"
+          y="0"
+          rx="9"
+          ry="9"
+          style="stroke-width: 3; stroke: black" />
+
+        <!-- grandchild 2 parents -->
+        <!-- Line from right parent -->
+        <!-- <line
+          x1="250"
+          y1="65"
+          x2="190"
+          y2="85"
+          style="stroke: green; stroke-width: 2" /> -->
+
+        <!-- Line from left parent -->
+        <line
+          x1="110"
+          y1="65"
+          x2="190"
+          y2="85"
+          style="stroke: green; stroke-width: 2" />
+        <rect
+          width="100"
+          height="20"
+          x="140"
+          y="85"
+          rx="9"
+          ry="9"
+          style="stroke-width: 2; stroke: black" />
+        <!-- left child -->
+        <rect
+          width="100"
+          height="20"
+          x="60"
+          y="45"
+          rx="9"
+          ry="9"
+          style="stroke-width: 2; stroke: black" />
+        <line
+          x1="190"
+          y1="15"
+          x2="110"
+          y2="45"
+          style="stroke: red; stroke-width: 2" />
+
+        <!-- Mother -->
+        <line
+          x1="190"
+          y1="15"
+          x2="250"
+          y2="45"
+          style="stroke: red; stroke-width: 2" />
+        <rect
+          width="100"
+          height="20"
+          x="140"
+          y="5"
+          rx="9"
+          ry="9"
+          style="stroke-width: 2; stroke: black" />
+        <text x="185" y="20" fill="black">1</text>
+
+        <!-- Right child -->
+        <rect
+          width="100"
+          height="20"
+          x="200"
+          y="45"
+          rx="9"
+          ry="9"
+          style="stroke-width: 2; stroke: black" />
+      </svg>
+    </div>
+  </head>
+  <body></body>
+</html>

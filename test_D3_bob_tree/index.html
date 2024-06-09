@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+
+    <title>Collapsible Tree Example</title>
+
+    <style>
+      .node circle {
+        fill: rgb(92, 239, 104);
+        stroke: rgb(142, 21, 223);
+        stroke-width: 5px;
+      }
+
+      .node text {
+        font: 12px sans-serif;
+      }
+
+      .link {
+        fill: none;
+        stroke: #ccc;
+        stroke-width: 2px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- load the d3.js library -->
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+
+    <script>
+      var treeData_v2 = [
+        {
+          name: "Top Level",
+          // parent: "null",
+          value: 10,
+          type: "black",
+          level: "red",
+          children: [
+            {
+              name: "Level 2: A",
+              // parent: "Top Level",
+              value: 15,
+              type: "grey",
+              level: "red",
+              thicknes: 6, // in px
+              children: [
+                {
+                  name: "Son of A",
+                  // parent: "Level 2: A",
+                  value: 5,
+                  type: "steelblue",
+                  level: "orange",
+                },
+                {
+                  name: "Son of A",
+                  // parent: "Level 2: A",
+                  value: 5,
+                  type: "steelblue",
+                  level: "orange",
+                  children: [
+                    {
+                      name: "Son of A-a",
+                      // parent: "Level 2: A",
+                      value: 5,
+                      type: "steelblue",
+                      level: "orange",
+                    },
+                    {
+                      name: "Son of A-b",
+                      // parent: "Level 2: A",
+                      value: 5,
+                      type: "blue",
+                      level: "orange",
+                    },
+                  ],
+                },
+                {
+                  name: "Daughter of A",
+                  // parent: "Level 2: A",
+                  value: 8,
+                  type: "steelblue",
+                  level: "red",
+                  thicknes: 5, // in px
+                  children: [
+                    {
+                      name: "Son of A-b",
+                      // parent: "Level 2: A",
+                      value: 5,
+                      type: "blue",
+                      level: "orange",
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              name: "Level 2: B",
+              // parent: "Top Level",
+              value: 10,
+              type: "grey",
+              level: "green",
+              thicknes: 3, // in px
+            },
+          ],
+        },
+      ];
+      var treeData = [
+        {
+          name: "Top Level",
+          parent: "null",
+          children: [
+            {
+              name: "Level 2: A",
+              parent: "Top Level",
+              children: [
+                {
+                  name: "Son of A",
+                  parent: "Level 2: A",
+                },
+                {
+                  name: "Daughter of A",
+                  parent: "Level 2: A",
+                },
+              ],
+            },
+            {
+              name: "Level 2: B",
+              parent: "Top Level",
+            },
+          ],
+        },
+      ];
+      // ************** Generate the tree diagram  *****************
+      // the standard features for our diagram such as the size and shape of the svg container with margins included.
+      var margin = { top: 30, right: 120, bottom: 20, left: 120 },
+        width = 960 - margin.right - margin.left,
+        height = 500 - margin.top - margin.bottom;
+
+      var i = 0;
+
+      // is used to assign and calculate the data required for the nodes and links for our diagram.
+      var tree = d3.layout.tree().size([height, width]);
+
+      // Link generating Fn. fn that will be used to draw the links between the nodes. This uses the d3.js diagonal function to help draw a path between two points such that the line exhibits some nice flowing curves (cubic BÃ©zier ) to make the connection.
+      var diagonal = d3.svg.diagonal().projection(function (node) {
+        // return [node.y, node.x]; // horizontal view
+        return [node.x, node.y]; // vertical view
+      });
+
+      // The block of code appends our SVG working area to the body of our web page and creates a group elements (<g>) that will contain our svg objects (our nodes, text and links).
+      var svg = d3
+        .select("body")
+        .append("svg")
+        .attr("width", width + margin.right + margin.left)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      //  set the 1st obj of treeData arr you created as the root of the tree (access the object out from the array.)
+      root = treeData[0];
+
+      // the function that draws our tree diagram, that uses the data root to create our tree. (pulls together the functions and data)
+      update(root);
+
+      function update(source) {
+        // Compute the new tree layout by assign our nodes and links.
+        var nodes = tree.nodes(root), //.reverse(), not sure why to reverce it here
+          links = tree.links(nodes);
+        // produces which is a set of nodes, each of which has characteristics:
+        // *optional* .parent: The obj of the parent of the node or null.
+        // *optional* parent.children: Which is an Array of any children that exists for each node,
+        // .name: The name we have assigned from imported data.
+        // .depth: the depth (described in a few paragraphs time).
+        // .x & .y: the x and y positions on the screen of the node.
+        // .id: a unique number identifier for each node.
+        console.log("Nodes: ", nodes);
+        // From this node data a set of links joining the nodes is created. Each link consists of a .source and .target. Each of which is a node.
+        console.log("Links: ", links);
+
+        // determine the horizontal spacing of the nodes. Normalize for fixed-depth. ‘expansion factor’ - 100 - spacing of nodes. This uses the depth of the node to calculate the position on the y axis (if root-child are spread left->right) of the screen. The depth refers to the position in the tree of a relative to the root node on the left, mother depth 0, her children dep.1...
+        let expansionFactor = 80;
+        nodes.forEach((depth) => (depth.y = depth.depth * expansionFactor));
+        // console.log("127nodes", nodes);
+
+        // selects the appropriate object (a node) with the appropriate .id.
+        // Declare the nodesID. Update the nodes.
+        var node = svg.selectAll("g.node").data(nodes, function (d) {
+          return d.id || (d.id = ++i);
+        });
+        console.log("133node", node);
+
+        // the action of appending a node to a particular position. Enter the nodes.
+        var nodeEnter = node
+          .enter()
+          .append("g")
+          .attr("class", "node")
+          .attr("transform", function (node) {
+            // return "translate(" + node.y + "," + node.x + ")"; // for horizontal view
+            return "translate(" + node.x + "," + node.y + ")"; // for vertical
+          });
+
+        // appends the "circle" shape that comprises the node (using nodeEnter). Circle is in <style>, r = is a radius of circles
+        // nodeEnter.append("circle").attr("r", 10).style("fill", "#fff"); // .style this will change a <style> tag above. it works
+        // in here the "d" is "node". These Changes incorporate more info from json
+        nodeEnter
+          .append("circle")
+          .attr("r", (node) => node.value) // radius of a circle
+          .style("stroke", (node) => node.type) // color of its border
+          .style("fill", (node) => node.level); // color of its center
+
+        // add the text for each node. This is a neat piece of code that allows the text to be placed on the left side of the node if it has children (d.children) or on the right if it has has no children or d._children. This is a slightly redundant piece of code (the d._children piece) for this diagram, but it becomes more useful in the interactive version towards the end of the chapter. It also aligns the text correctly and makes sure it is visible.  (if it’s a parent it’s on the left) or childless / a child that is on the edge of the tree (in which case it is on the right of the node).
+
+        // NODE's TEXT
+        var distToNode = 4 + 5; // 5px is guessed thickness of defalt of "stroke" attr for vertical view
+        nodeEnter
+          .append("text")
+          // here is adjustment 4 that sets the distance that the text is from the nodes so that when the radius expands or contracts, the text distance from the edge of the node is DYNAMIC as well.
+          // .attr("x", function(d) {  // x is got text horizontally
+          //   return d.children || d._children ? -13 : 13; })
+          .attr("y", function (d) {
+            return d.children || d._children
+              ? (d.value + distToNode) * -1
+              : d.value + distToNode;
+          })
+          .attr("dy", ".35em")
+          .attr("text-anchor", "middle") // function (d) {
+          // return d.children || d._children ? "end" : "start";
+          // }) // works for horizontal view
+          .text(function (d) {
+            return d.name;
+          })
+          .style("fill-opacity", 1);
+
+        // Declare the link to make a link based on all the links that have unique target id’s. We only want to draw links between a node and it’s parent. There should be one less link than the total number of nodes since the root node (‘Top Level’) has no parent. Therefore only those links with unique target id’s in the data need to have links produced. If we were to replace the .target in the code with .source we would have only two unique .source id’s.
+        var link = svg.selectAll("path.link").data(links, function (node) {
+          return node.target.id;
+        });
+
+        // Enter the links: adds in our link as a diagonal path declared above
+        link
+          .enter()
+          .insert("path", "g")
+          .attr("class", "link")
+          // to change the colour of the link based on the colour of the target node. We accomplish this by taking the code that inserts the links
+          .style("stroke", (node) => node.target.level)
+          .style("stroke-width", (node) => node.target.thicknes)
+          .attr("d", diagonal);
+      }
+    </script>
+  </body>
+</html>

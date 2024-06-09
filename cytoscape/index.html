@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+  </head>
+  <body>
+    <div id="cy" style="width: 800px; height: 600px"></div>
+    <script>
+      var cy = cytoscape({
+        container: document.getElementById("cy"),
+        elements: [
+          { data: { id: "HK,C.MP,QCF+PP,C.LP" } },
+          { data: { id: "HK,C.MP,QCF+PP,C.LP,C.LP" } },
+          {
+            data: {
+              id: "ab",
+              source: "HK,C.MP,QCF+PP,C.LP",
+              target: "HK,C.MP,QCF+PP,C.LP,C.LP",
+            },
+          },
+        ],
+        style: [
+          {
+            selector: "node",
+            style: {
+              label: "data(id)",
+              "background-color": "#14915e",
+            },
+          },
+          {
+            selector: "edge",
+            style: {
+              width: 3,
+              "line-color": "red",
+            },
+          },
+        ],
+        layout: {
+          name: "grid",
+          rows: 1,
+        },
+      });
+    </script>
+  </body>
+</html>

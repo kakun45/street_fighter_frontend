@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manufacturing my SVG</title>
+    <!-- monospaced font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap"
+      rel="stylesheet" />
+    <style>
+      body {
+        font-family: "Courier New", Courier, monospace;
+      }
+      svg {
+        font-family: "Roboto Mono", monospace;
+      }
+      .small {
+        font-size: small;
+      }
+    </style>
+  </head>
+  <script>
+    // Declare const variables in the global scope
+    const MONOFONTFONT = "13px 'Roboto Mono'",
+      LEFTPADDING = 10,
+      NODEHEIGHT = 20;
+
+    //  ===== Comes from Backend (service call or a file): =====
+    const actions = [
+      { id: 1, content: "DR", other: [], root: true },
+      { id: 2, content: "C.LK", other: [] },
+      { id: 3, content: "DF+MP", other: [] },
+      { id: 4, content: "MP", other: [] },
+    ];
+
+    // IDs
+    const edges = [
+      { start: 1, end: 4 },
+      { start: 1, end: 3 },
+      { start: 4, end: 2 },
+      { start: 3, end: 2 },
+    ];
+
+    // ===================== FRONTEND =====================
+
+    // result of layout function, that will live on the front
+    const nodes = [
+      {
+        action: actions[0],
+        position: [140, 5],
+        // topMiddlePos: [190, 5], // todo: Fn(position, nodeSize) to return this
+        // bottomMiddlePos: [190, 25], // todo: Fn(position, nodeSize) to return this
+        nodeSize: textToNodeSize(actions[0].content), //nodeSize: [100w, 20h],
+        // wDepth: 5,
+      },
+    ];
+
+    // Fn calculating bottomMiddlePos based on nodeSize
+    // const getMiddles = () => {}
+
+    // Fn calculates the size given a text, return arr [w, h] in standard order: w&h x&y
+    function textToNodeSize(text) {
+      // Calculate <rect> width: measure text add 2ce of padding on the sides
+      const nodeWidth = measureTextWidth(text, MONOFONTFONT) + 2 * LEFTPADDING;
+      return [nodeWidth, NODEHEIGHT];
+    }
+
+    // utility function to measure text width of text string
+    function measureTextWidth(text, font) {
+      if (text === "" || text === null || text === undefined) {
+        text = "123";
+      }
+      let canvas = document.createElement("canvas");
+      let context = canvas.getContext("2d");
+      context.font = font;
+      return context.measureText(text).width;
+    }
+
+    const createSvgCanvas = ({
+      x = 0,
+      y = 0,
+      h = 400,
+      w = 400,
+      id = null,
+    } = {}) => {
+      let strokeWidth = 3,
+        stroke = "green",
+        newCanvas = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "svg" // Creates the SVG element in the SVG namespace
+        );
+      newCanvas.setAttribute("x", x);
+      newCanvas.setAttribute("y", y);
+      newCanvas.setAttribute("width", w);
+      newCanvas.setAttribute("height", h);
+      newCanvas.setAttribute("stroke", stroke);
+      newCanvas.setAttribute("stroke-width", strokeWidth);
+      // Set the id attribute if provided
+      if (id) {
+        newCanvas.setAttribute("id", id);
+      }
+      return newCanvas;
+    };
+
+    const createLineObj = (x1, x2, y1, y2, color) => {
+      const strokeWidth = 3;
+      let newLine = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "line"
+      ); //Create a Line in SVG's namespace
+      newLine.setAttribute("x1", x1); // horizontally: from
+      newLine.setAttribute("x2", x2); // horizontally: to
+      newLine.setAttribute("y1", y1);
+      newLine.setAttribute("y2", y2);
+      newLine.setAttribute("stroke", color);
+      newLine.setAttribute("stroke-width", strokeWidth);
+
+      return newLine;
+    };
+
+    // create a <text>, create <rect>, attach both to <g> group; return <g>
+    const createNodeObj = (
+      rectX,
+      rectY,
+      nodeText = "Your text", // MUST be in monospaced font
+      // rectWidth = 100,
+      // NODEHEIGHT = 20,
+      rectStroke = "black",
+      textColor = "black"
+    ) => {
+      const strokeWidth = 2,
+        rx = 5, // x rect rounded edge
+        ry = 5, // y rect rounded edge
+        gFill = "white", // fill color of all grouped elements
+        padding = 10; // padding for nodeText on both sides
+
+      // measures len(monospaced_text)*px of one letter + padding*2 for L&R
+      // const font = "13px 'Roboto Mono'"; // Font used for measuring text width
+      // const texWidth = measureTextWidth(nodeText, font); //, font); // Measure text width
+      // rectWidth = texWidth + 2 * padding; // Calculate rect width with padding
+      const [w, h] = textToNodeSize(nodeText);
+      // Create and set up the <rect> & <text> elements
+      let newGroup = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "g"
+      ); // Create a <g> in SVG's namespace
+      let newRect = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "rect"
+      ); // Create a <rect> in SVG's namespace
+      let newText = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "text"
+      ); // Create a <text> in SVG's namespace
+
+      newRect.setAttribute("width", w);
+      newRect.setAttribute("height", h);
+      newRect.setAttribute("x", rectX);
+      newRect.setAttribute("y", rectY);
+      newRect.setAttribute("rx", rx);
+      newRect.setAttribute("ry", ry);
+      newRect.setAttribute("stroke", rectStroke);
+
+      newText.setAttribute("x", rectX + w / 2); // x of the starting point of the text baseline
+      newText.setAttribute("y", rectY + h / 2);
+      // newText.setAttribute("y", rectY + NODEHEIGHT / 2 + 13 / 3); // y of the starting point of the text baseline. 13px is height of font on class .small. 3 is because the text is placed in the 1/3 of the node's height
+      newText.setAttribute("class", "small");
+      newText.setAttribute("text-anchor", "middle"); // horizontally centered: relative to its X&Y
+      newText.setAttribute("dominant-baseline", "central"); // Vertically centers the text
+      newText.setAttribute("fill", textColor); // Text color
+      newText.textContent = nodeText; // Text content on node
+
+      newGroup.setAttribute("fill", gFill);
+      newGroup.setAttribute("stroke-width", strokeWidth);
+      newGroup.appendChild(newRect); // Append the rect to the SVG element
+      newGroup.appendChild(newText); // Append the text to the SVG element
+      return newGroup;
+    };
+
+    window.onload = (event) => {
+      console.log("page is fully loaded");
+
+      // let svg = document.getElementsByTagName("svg")[0]; //Get 1st <svg> element
+      // Centering everything in an SVG can be achieved by calculating the center of the SVG container and then positioning each element relative to this center. Introducing a grandCentralX is indeed a good approach.
+      let svg = document.getElementById("svg-container");
+      // Get the center X coordinate of the scv
+      let svgWidth = svg.clientWidth;
+      // calculate the center of the screen & draw some things based of that
+      let grandCentralX = svgWidth / 2; // 200
+
+      // calculate the level position offset (Y) by the depth of a node, need nodeH & top offset
+      // 0 -> 5;
+      // 1 -> 45=(5+20H)+20space
+      // 2 -> 85=(5top+20H)+20space+(20H)+20space
+      const levelNumToOffsetY = (depth) => {
+        const vertSpaceBetweenLevels = 20,
+          mothershipOffset = 5,
+          nodeHeight = 20;
+
+        let levelOffset = mothershipOffset;
+        for (let i = 0; i < depth; i++) {
+          levelOffset += nodeHeight + vertSpaceBetweenLevels;
+        }
+        return levelOffset;
+      };
+
+      // ============== DRAW CANVAS ==============
+      // default args: x = 0, y = 0, h = 400, w = 400, id = null
+      // svg.appendChild(createSvgCanvas({ id: "test_id" }));
+
+      // ============== DRAW EDGES ==============
+      // (!) Fn do NOT support named args or disodered args, order is critical, skip - impossible
+      // args are: x1, x2, y1, y2, color
+      svg.appendChild(
+        createLineObj(
+          190,
+          190,
+          levelNumToOffsetY(2),
+          levelNumToOffsetY(3),
+          "green"
+        )
+      ); // GenIV M child: Line from Grandchild to GenIV
+      svg.appendChild(
+        createLineObj(
+          190,
+          320,
+          levelNumToOffsetY(2),
+          levelNumToOffsetY(3),
+          "purple"
+        )
+      ); // GenIV R child: Line from Grandchild to GenIV
+      svg.appendChild(
+        createLineObj(
+          80,
+          80,
+          levelNumToOffsetY(1),
+          levelNumToOffsetY(3),
+          "lightblue"
+        )
+      ); // L child: Line from L Child to GenIV
+      svg.appendChild(
+        createLineObj(
+          150,
+          150,
+          levelNumToOffsetY(2),
+          levelNumToOffsetY(4),
+          "brown"
+        )
+      ); // GenV: Line from Grandchild to GenV
+      svg.appendChild(
+        createLineObj(
+          80,
+          150,
+          levelNumToOffsetY(3),
+          levelNumToOffsetY(4),
+          "brown"
+        )
+      ); // GenV: Line from GenIV to GenV
+      svg.appendChild(
+        createLineObj(
+          520,
+          150,
+          levelNumToOffsetY(3),
+          levelNumToOffsetY(4),
+          "brown"
+        )
+      ); // GenV: Line from GenIV to GenV
+      svg.appendChild(
+        createLineObj(110, 190, 65, levelNumToOffsetY(2), "yellow")
+      ); // grandchild: Line from L parent
+      svg.appendChild(
+        createLineObj(250, 190, 65, levelNumToOffsetY(2), "orange")
+      ); // grandChild: Line from R parent
+      svg.appendChild(createLineObj(190, 250, 15, levelNumToOffsetY(1), "red")); // R child: Line from Mother
+      svg.appendChild(
+        createLineObj(190, 110, 15, levelNumToOffsetY(1), "blue")
+      ); // L child: Line from Mother
+
+      // Relative Positioning: Each node is positioned relative to this central X coordinate.
+      // layout code
+      function calculateNodeX(
+        node,
+        depth,
+        grandCentralX,
+        centerOfParent = null
+      ) {
+        // todo:
+        // use rectX = grandCentralX - rectWidth / 2
+        // ? may need to know how many children are on the same level & what are their totalWidths, they all must share the level screen width, or think about relocation if too many
+        // or if a node is alone on their depth but do not need to be centered relatve to grandCenterX, then it needs to know a grandCentralX of its parent(-s)
+        // x = parentCenter - rectWidth/2 (single parent on offset of grandCentralX)
+        // x = parentCenter1 + (parentCenter2 - parentCenter1) /2  (2 parents) ...
+        // what to do if there are 3,4,8 parentsCenters?
+        // return X
+      }
+
+      // ============== DRAW NODES ==============
+      // (!) Fn do NOT support named args or disodered args, order is critical, skip - impossible
+      // args: rectX, rectY, nodeText
+      svg.appendChild(
+        createNodeObj(
+          grandCentralX / 2,
+          levelNumToOffsetY(2),
+          "Grandchild 2 parents"
+        )
+      ); // todo: thiS one it centered by a coinsedence, create a Fn to calc. positions of X for Nodes
+      svg.appendChild(
+        createNodeObj(100, levelNumToOffsetY(4), "GenV child 3 parents")
+      );
+      svg.appendChild(
+        createNodeObj(10, levelNumToOffsetY(3), "GenIV: L child")
+      );
+      svg.appendChild(
+        createNodeObj(160, levelNumToOffsetY(3), "GenIV: M child")
+      );
+      svg.appendChild(
+        createNodeObj(290, levelNumToOffsetY(3), "GenIV: R child")
+      );
+
+      svg.appendChild(createNodeObj(40, levelNumToOffsetY(1), "L child"));
+      svg.appendChild(createNodeObj(250, levelNumToOffsetY(1), "R child"));
+
+      svg.appendChild(createNodeObj(140, levelNumToOffsetY(0), "Mothership"));
+    };
+  </script>
+
+  <body>
+    <h1>I love SVG!</h1>
+    <div style="background-color: #eeeeff">
+      <svg
+        id="svg-container"
+        height="400"
+        width="400"
+        style="border: 10px red; fill: white">
+        <!-- canvas border -->
+        <rect
+          width="400"
+          height="400"
+          x="0"
+          y="0"
+          stroke="green"
+          stroke-width="3" />
+        <!--
+          rx="9" // x shave corners
+          ry="9" // y shave corners
+          style="stroke-width: 3; stroke: black"  // works too -->
+      </svg>
+    </div>
+  </body>
+</html>

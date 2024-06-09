@@ -1,0 +1,64 @@
+[
+  {
+    "name": "Top Node",
+    "children": [
+      {
+        "name": "Bob: Child of Top Node",
+        "parent": "Top Node",
+        "children": [
+          {
+            "name": "Son of Bob",
+            "parent": "Bob: Child of Top Node"
+          },
+          {
+            "name": "Daughter of Bob",
+            "parent": "Bob: Child of Top Node"
+          }
+        ]
+      },
+      {
+        "name": "Sally: Child of Top Node",
+        "parent": "Top Node"
+      }
+    ]
+  },
+  {
+    "name": "Top Level",
+    "parent": "null",
+    "value": 10,
+    "type": "black",
+    "level": "red",
+    "children": [
+      {
+        "name": "Level 2: A",
+        "parent": "Top Level",
+        "value": 15,
+        "type": "grey",
+        "level": "red",
+        "children": [
+          {
+            "name": "Son of A",
+            "parent": "Level 2: A",
+            "value": 5,
+            "type": "steelblue",
+            "level": "orange"
+          },
+          {
+            "name": "Daughter of A",
+            "parent": "Level 2: A",
+            "value": 8,
+            "type": "steelblue",
+            "level": "red"
+          }
+        ]
+      },
+      {
+        "name": "Level 2: B",
+        "parent": "Top Level",
+        "value": 10,
+        "type": "grey",
+        "level": "green"
+      }
+    ]
+  }
+]

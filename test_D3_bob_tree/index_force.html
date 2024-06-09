@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Graph Visualizatio D3 Force</title>
+    <style>
+      .node {
+        font-family: "Courier New", Courier, monospace;
+        text-anchor: middle;
+        dominant-baseline: central;
+        fill: rgb(235, 30, 30);
+      }
+      .node rect {
+        fill: rgb(34, 119, 188);
+        stroke: rgb(0, 0, 0);
+      }
+    </style>
+  </head>
+  <body>
+    <svg width="800" height="600"></svg>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+      const svg = d3.select("svg");
+      const width = +svg.attr("width");
+      const height = +svg.attr("height");
+
+      const data = {
+        nodes: [
+          { id: "Move 1: e4" },
+          { id: "Move 2: e5" },
+          { id: "Move 3: Nf3" },
+          { id: "Move 4: Nc6" },
+        ],
+        links: [
+          { source: "Move 1: e4", target: "Move 2: e5" },
+          { source: "Move 2: e5", target: "Move 3: Nf3" },
+          { source: "Move 3: Nf3", target: "Move 4: Nc6" },
+        ],
+      };
+
+      const simulation = d3
+        .forceSimulation(data.nodes)
+        .force(
+          "link",
+          d3
+            .forceLink(data.links)
+            .id((d) => d.id)
+            .distance(100)
+        )
+        .force("charge", d3.forceManyBody().strength(-300))
+        .force("center", d3.forceCenter(width / 2, height / 2));
+
+      const link = svg
+        .append("g")
+        .attr("class", "links")
+        .selectAll("line")
+        .data(data.links)
+        .enter()
+        .append("line")
+        .attr("stroke-width", 2)
+        .attr("stroke", "#999");
+
+      const node = svg
+        .append("g")
+        .attr("class", "nodes")
+        .selectAll("g")
+        .data(data.nodes)
+        .enter()
+        .append("g");
+
+      node
+        .append("rect")
+        .attr("x", -50)
+        .attr("y", -15)
+        .attr("width", 100)
+        .attr("height", 30)
+        .attr("rx", 5)
+        .attr("ry", 5);
+
+      node
+        .append("text")
+        .attr("dy", ".35em")
+        .text((d) => d.id);
+
+      simulation.on("tick", () => {
+        link
+          .attr("x1", (d) => d.source.x)
+          .attr("y1", (d) => d.source.y)
+          .attr("x2", (d) => d.target.x)
+          .attr("y2", (d) => d.target.y);
+
+        node.attr("transform", (d) => `translate(${d.x},${d.y})`);
+      });
+    </script>
+  </body>
+</html>

@@ -1,5 +1,5 @@
 //  ===== Declare const variables in the global scope  =====
-const MONOFONTFONT = "13px 'Roboto Mono'",
+const MONOFONTFONT = "13px 'Roboto Mono'", // Font used for measuring text width
   LEFTPADDING = 10, // padding for nodeText on both sides inside the node
   NODEHEIGHT = 20,
   ROOTOFFSET = 5,
@@ -7,18 +7,52 @@ const MONOFONTFONT = "13px 'Roboto Mono'",
 
 //  ===== Comes from Backend (service call or a file): =====
 const actions = [
-  { id: 1, content: "DR", other: [], root: true },
-  { id: 2, content: "C.LK", other: [] },
+  { id: 1, content: "DR", other: [], root: true }, // 0 LEVEL
+  { id: 2, content: "C.LK", other: [] }, // 1 LEVEL
   { id: 3, content: "DF+MP", other: [] },
   { id: 4, content: "MP", other: [] },
+  { id: 5, content: "C.LP", other: [] },
+  { id: 6, content: "C.MK", other: [] },
+  { id: 7, content: "LK", other: [] },
+  { id: 8, content: "LP", other: [] },
+  { id: 9, content: "D+MK", other: [] },
+  { id: 10, content: "MP", other: [] }, // 2 LEVEL
+  { id: 11, content: "C.MP", other: [] },
+  { id: 12, content: "D+MP", other: [] },
+  { id: 13, content: "MP", other: [] }, // 3 LEVEL
+  // { id: 14, content: "QCF+HP", other: [] },
+  // { id: 15, content: "QCB+LP", other: [] },
+  // { id: 16, content: "QCF+PP", other: [] },
+  // { id: 17, content: "QCB+PP", other: [] },
+  // { id: 18, content: "HK", other: [] }, // 4 LEVEL
+  // { id: 19, content: "QCF+P", other: [] },
+  // { id: 20, content: "QCF+PDR", other: [] }, // ...
 ];
 
 // IDs
 const edges = [
-  { startId: 2, endId: 4 },
-  { startId: 3, endId: 4 },
-  { startId: 1, endId: 3 },
-  { startId: 1, endId: 2 },
+  // LEVEL [3]
+  // { startId: 15, endId: 18 }, // QCB+LP->
+  // LEAF node
+  // { startId: 13, endId: 18 }, // MP->HK
+  // LEVEL [2]
+  { startId: 9, endId: 12 }, // D+MK->D+MP
+  { startId: 8, endId: 11 }, // LP->C.MP
+  { startId: 7, endId: 11 }, // LK->C.MP
+  { startId: 6, endId: 11 }, // C.MK->C.MP
+  { startId: 5, endId: 11 }, // C.LP->C.MP
+  { startId: 4, endId: 10 }, // MP->MP
+  { startId: 3, endId: 10 }, // DF+MP->MP
+  { startId: 2, endId: 10 }, // C.LK->MP
+  // LEVEL [1]
+  { startId: 1, endId: 9 }, // DR->D+MK
+  { startId: 1, endId: 8 }, // DR->LP
+  { startId: 1, endId: 7 }, // DR->LK
+  { startId: 1, endId: 6 }, // DR->C.MK
+  { startId: 1, endId: 5 }, // DR->C.LP
+  { startId: 1, endId: 4 }, // DR->MP
+  { startId: 1, endId: 3 }, // DR->DF+MP
+  { startId: 1, endId: 2 }, // DR->C.LK
 ];
 
 // ===================== FRONTEND =====================
@@ -26,41 +60,89 @@ const edges = [
 // result of layout function, that will live on the front
 const nodes = [
   {
-    action: actions[0],
-    position: [150, 5], // x, y
+    action: actions[0], // root due to order, todo: inforce it with check: root===true
+    position: [350, 5], // x, y
     nodeSize: textToNodeSize(actions[0].content), // w&h: [100, 20]
-    // wDepth: 5,
+    // depth: 5, <- todo set by function, modify this obj
   },
   {
     action: actions[1],
-    position: [40, 45],
+    position: [10, 45],
     nodeSize: textToNodeSize(actions[1].content),
   },
   {
     action: actions[2],
-    position: [250, 45],
+    position: [80, 45],
     nodeSize: textToNodeSize(actions[2].content),
   },
   {
     action: actions[3],
-    position: [150, 85],
+    position: [160, 45],
     nodeSize: textToNodeSize(actions[3].content),
+  },
+  {
+    action: actions[4],
+    position: [230, 45],
+    nodeSize: textToNodeSize(actions[4].content),
+  },
+  {
+    action: actions[5],
+    position: [290, 45],
+    nodeSize: textToNodeSize(actions[5].content),
+  },
+  {
+    action: actions[6],
+    position: [360, 45],
+    nodeSize: textToNodeSize(actions[6].content),
+  },
+  {
+    action: actions[7],
+    position: [410, 45],
+    nodeSize: textToNodeSize(actions[7].content),
+  },
+  {
+    action: actions[8],
+    position: [490, 45],
+    nodeSize: textToNodeSize(actions[8].content),
+  },
+  {
+    action: actions[9],
+    position: [100, 85],
+    nodeSize: textToNodeSize(actions[9].content),
+  },
+  {
+    action: actions[10],
+    position: [350, 85],
+    nodeSize: textToNodeSize(actions[10].content),
+  },
+  {
+    action: actions[11],
+    position: [490, 85],
+    nodeSize: textToNodeSize(actions[11].content),
   },
 ];
 
-// nodesById is a dictionary of node_id -> node. lookup nodes==id
+// create nodesById, a dictionary of node_id -> node. lookup nodes==id
 const nodesById = {};
 nodes.forEach((node) => {
   nodesById[node.action.id] = node;
 });
 
-// measures len(monospaced_text)*px of one letter + padding*2 for L&R
-// const font = "13px 'Roboto Mono'"; // Font used for measuring text width
-// const texWidth = measureTextWidth(nodeText, font); //, font); // Measure text width
-// rectWidth = texWidth + 2 * padding; // Calculate rect width with padding
+// E can range from 0 to V×(V−1). compare lengths of edges & obj lookup
+const nodesByIdLength = Object.keys(nodesById).length;
+const edgesLength = edges.length;
+if (nodesByIdLength !== edgesLength) {
+  //   throw new Error(
+  //     `Length missmatch: edges (E):${edgesLength} !== nodesById (V):${nodesByIdLength}`
+  //   );
+  console.error(
+    `Length missmatch: edges (E):${edgesLength} !== nodesById (V):${nodesByIdLength}`
+  );
+}
+
 // Fn calculates the size given a text, return arr [w, h] in standard order: w&h x&y
 function textToNodeSize(text) {
-  // Calculate <rect> width: measure text add 2ce of padding on the sides
+  // Calculate <rect> width: measure textWidth, add padding on two sides
   const nodeWidth = measureTextWidth(text, MONOFONTFONT) + 2 * LEFTPADDING;
   return [nodeWidth, NODEHEIGHT];
 }
@@ -76,11 +158,12 @@ function measureTextWidth(text, font) {
   return context.measureText(text).width;
 }
 
+// todo: this is unused
 const createSvgCanvas = ({
   x = 0,
   y = 0,
   h = 400,
-  w = 400,
+  w = 800,
   id = null,
 } = {}) => {
   let strokeWidth = 3,
@@ -113,8 +196,8 @@ const getTopMiddlePos = (node) => {
 // given a node return bottomMiddle position of the node
 const getBottomMiddlePos = (node) => {
   const [x, y] = node.position,
-    h = node.nodeSize[1], // height
-    w = node.nodeSize[0], // width
+    h = node.nodeSize[1], // nodeHeight
+    w = node.nodeSize[0], // nodeWidth
     midX = x + w / 2,
     bottomY2 = y + h;
   return [midX, bottomY2];
@@ -194,6 +277,8 @@ function calculateNodeX(node, depth, centerOfParent = null) {
   // return X
 }
 
+// todo: Fn takes edges & nodesbynodeid, set a depth on every node
+
 // calculate the level position offset (Y) by the depth of a node, need nodeH & top offset
 // 0 -> 5;
 // 1 -> 45=(5+20H)+20space
@@ -223,11 +308,16 @@ window.onload = () => {
   edges.forEach((edge) => {
     const startNode = nodesById[edge.startId],
       endNode = nodesById[edge.endId];
+    if (!startNode || !endNode) {
+      throw new Error(
+        `Cannot draw an edge: ${edge}, node doesn't exist in lookup dict`
+      );
+    }
     svg.appendChild(createEdgeObj(startNode, endNode));
   });
   // ============== DRAW NODES ==============
   // left Child it centered by a coinsedence, create a Fn to calc. positions of X for Nodes
   nodes.forEach((node) => {
-    svg.appendChild(createNodeObj(node)); // grandchildren < children < root
+    svg.appendChild(createNodeObj(node)); // order: grandchildren <- children <- root
   });
 };

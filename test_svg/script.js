@@ -3,7 +3,7 @@ const MONOFONTFONT = "13px 'Roboto Mono'", // Font used for measuring text width
   LEFTPADDING = 10, // padding for nodeText on both sides inside the node
   NODEHEIGHT = 20,
   ROOTOFFSET = 5,
-  XSPACEBETWEENLEVELS = 20;
+  XSPACEBETWEENLEVELS = 40;
 
 //  ===== Comes from Backend (service call or a file): =====
 const actions = [
@@ -61,71 +61,122 @@ const edges = [
 const nodes = [
   {
     action: actions[0], // root due to order, todo: inforce it with check: root===true
-    position: [350, 5], // x, y
+    position: [350, 5], // x, y: a function sets y
     nodeSize: textToNodeSize(actions[0].content), // w&h: [100, 20]
-    // depth: 5, <- todo set by function, modify this obj
+    childIds: [], // a function, modifies this property
+    // depth: 5, // a function, sets this property
   },
   {
     action: actions[1],
-    position: [10, 45],
+    position: [10, "fdfkd"],
     nodeSize: textToNodeSize(actions[1].content),
+    childIds: [],
   },
   {
     action: actions[2],
     position: [80, 45],
     nodeSize: textToNodeSize(actions[2].content),
+    childIds: [],
   },
   {
     action: actions[3],
     position: [160, 45],
     nodeSize: textToNodeSize(actions[3].content),
+    childIds: [],
   },
   {
     action: actions[4],
     position: [230, 45],
     nodeSize: textToNodeSize(actions[4].content),
+    childIds: [],
   },
   {
     action: actions[5],
     position: [290, 45],
     nodeSize: textToNodeSize(actions[5].content),
+    childIds: [],
   },
   {
     action: actions[6],
     position: [360, 45],
     nodeSize: textToNodeSize(actions[6].content),
+    childIds: [],
   },
   {
     action: actions[7],
     position: [410, 45],
     nodeSize: textToNodeSize(actions[7].content),
+    childIds: [],
   },
   {
     action: actions[8],
     position: [490, 45],
     nodeSize: textToNodeSize(actions[8].content),
+    childIds: [],
   },
   {
     action: actions[9],
     position: [100, 85],
     nodeSize: textToNodeSize(actions[9].content),
+    childIds: [],
   },
   {
     action: actions[10],
     position: [350, 85],
     nodeSize: textToNodeSize(actions[10].content),
+    childIds: [],
   },
   {
     action: actions[11],
     position: [490, 85],
     nodeSize: textToNodeSize(actions[11].content),
+    childIds: [],
   },
 ];
 
 // create nodesById, a dictionary of node_id -> node. lookup nodes==id
 const nodesById = {};
 nodes.forEach((node) => {
-  nodesById[node.action.id] = node;
+  nodesById[node.action.id] = node; // this is a refference to a node
+});
+// console.log(nodesById);
+// {
+// 9:   {
+//   action: actions[10],
+//   position: [..., ...],
+//   nodeSize: textToNodeSize(actions[9].content),
+//   childIds: [],
+//   }
+// }
+
+// putting a list of destinations ids into each node by traveling along the edge:
+
+edges.forEach((edge) => {
+  const startNode = nodesById[edge.startId]; // startNode is the parent: nodeObj with id=1
+  startNode.childIds.push(edge.endId);
+});
+
+// Fn takes nodes by nodeId, sets a depth on every node in [nodes]
+// todo: if we have a cycle it will run forever, quit if depth is set, return, or use {visited}
+function setDepth(parentId, depth, nodesById) {
+  const parent = nodesById[parentId]; // get a node
+  parent["depth"] = depth;
+  for (childId of parent.childIds) {
+    setDepth(childId, depth + 1, nodesById); // self call
+  }
+}
+
+const rootId = actions[0].id;
+setDepth(rootId, 0, nodesById);
+
+// calculate the level position offset (Y) by the depth of a node, need nodeH & top offset
+// 0 -> 5;
+// 1 -> 45=(5+20H)+20space;
+// 2 -> 85=(5top+20H)+20space+(20H)+20space;
+nodes.forEach((node) => {
+  // take Y, modify Y = offset + d * (h + s)
+  node.position[1] =
+    ROOTOFFSET + node.depth * (node.nodeSize[1] + XSPACEBETWEENLEVELS);
 });
 
 // E can range from 0 to V×(V−1). compare lengths of edges & obj lookup
@@ -277,20 +328,7 @@ function calculateNodeX(node, depth, centerOfParent = null) {
   // return X
 }
 
-// todo: Fn takes edges & nodesbynodeid, set a depth on every node
-
-// calculate the level position offset (Y) by the depth of a node, need nodeH & top offset
-// 0 -> 5;
-// 1 -> 45=(5+20H)+20space
-// 2 -> 85=(5top+20H)+20space+(20H)+20space
-const levelNumToOffsetY = (depth) => {
-  let levelOffset = ROOTOFFSET;
-  for (let i = 0; i < depth; i++) {
-    levelOffset += NODEHEIGHT + XSPACEBETWEENLEVELS;
-  }
-  return levelOffset;
-};
-
+// ================!!!!!! When page is fully loaded !!!!!!================
 window.onload = () => {
   console.log("page is fully loaded");
 

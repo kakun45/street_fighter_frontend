@@ -9,9 +9,22 @@
     <link
       href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap"
       rel="stylesheet" />
-    <script src="script.js" defer></script>
     <title>Manufacturing my SVG</title>
     <link rel="stylesheet" href="styles/style.css" />
+    <script type="module" src="script.js" defer></script>
+    <script type="module">
+      //const {exportTest} = "./"
+      import { exportTest } from "./script.js";
+
+      if (document.readyState === "complete") {
+        exportTest("MODULE FUNCTION CALL SUCCESSFUL 1");
+      } else {
+        document.addEventListener("DOMContentLoaded", () => {
+          console.log("DOMContentLoaded from script tag");
+          exportTest("MODULE FUNCTION CALL SUCCESSFUL 2");
+        });
+      }
+    </script>
   </head>
 
   <body>

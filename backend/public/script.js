@@ -1,63 +1,41 @@
+// const { constants } = require("buffer"); //?
+// import axios from "./axios";
+const API_URL = "http://localhost:8000";
+
 //  ===== Declare const variables in the global scope  =====
 const MONOFONTFONT = "13px 'Roboto Mono'", // Font used for measuring text width
   LEFTPADDING = 10, // padding for nodeText on both sides inside the node
   NODEHEIGHT = 20,
   ROOTOFFSET = 5,
-  XSPACEBETWEENLEVELS = 40;
-
-//  ===== Comes from Backend (service call or a file): =====
-const actions = [
-  { id: 1, content: "DR", other: [], root: true }, // 0 LEVEL
-  { id: 2, content: "C.LK", other: [] }, // 1 LEVEL
-  { id: 3, content: "DF+MP", other: [] },
-  { id: 4, content: "MP", other: [] },
-  { id: 5, content: "C.LP", other: [] },
-  { id: 6, content: "C.MK", other: [] },
-  { id: 7, content: "LK", other: [] },
-  { id: 8, content: "LP", other: [] },
-  { id: 9, content: "D+MK", other: [] },
-  { id: 10, content: "MP", other: [] }, // 2 LEVEL
-  { id: 11, content: "C.MP", other: [] },
-  { id: 12, content: "D+MP", other: [] },
-  { id: 13, content: "MP", other: [] }, // 3 LEVEL
-  // { id: 14, content: "QCF+HP", other: [] },
-  // { id: 15, content: "QCB+LP", other: [] },
-  // { id: 16, content: "QCF+PP", other: [] },
-  // { id: 17, content: "QCB+PP", other: [] },
-  // { id: 18, content: "HK", other: [] }, // 4 LEVEL
-  // { id: 19, content: "QCF+P", other: [] },
-  // { id: 20, content: "QCF+PDR", other: [] }, // ...
-];
-
-// IDs
-const edges = [
-  // LEVEL [3]
-  // { startId: 15, endId: 18 }, // QCB+LP->
-  // LEAF node
-  // { startId: 13, endId: 18 }, // MP->HK
-  // LEVEL [2]
-  { startId: 9, endId: 12 }, // D+MK->D+MP
-  { startId: 8, endId: 11 }, // LP->C.MP
-  { startId: 7, endId: 11 }, // LK->C.MP
-  { startId: 6, endId: 11 }, // C.MK->C.MP
-  { startId: 5, endId: 11 }, // C.LP->C.MP
-  { startId: 4, endId: 10 }, // MP->MP
-  { startId: 3, endId: 10 }, // DF+MP->MP
-  { startId: 2, endId: 10 }, // C.LK->MP
-  // LEVEL [1]
-  { startId: 1, endId: 9 }, // DR->D+MK
-  { startId: 1, endId: 8 }, // DR->LP
-  { startId: 1, endId: 7 }, // DR->LK
-  { startId: 1, endId: 6 }, // DR->C.MK
-  { startId: 1, endId: 5 }, // DR->C.LP
-  { startId: 1, endId: 4 }, // DR->MP
-  { startId: 1, endId: 3 }, // DR->DF+MP
-  { startId: 1, endId: 2 }, // DR->C.LK
-];
+  XSPACEBETWEENLEVELS = 60;
 
 // ===================== FRONTEND =====================
+let actions, edges;
+await fetch(`${API_URL}/actions`)
+  .then((res) => res.json())
+  .then((data) => {
+    // Handle the response data
+    console.log(data);
+    actions = data.actions;
+    edges = data.edges;
+  })
+  .catch((err) => {
+    console.error("Error: ", err);
+  });
 
-// result of layout function, that will live on the front
+export function exportTest(msg) {
+  console.log(msg);
+}
+
+export function drawGraph() {
+  // TODO put all the drawing code here
+}
+
+console.log("about to add DOMContentLoaded listener from module");
+// let document = "./index.html"; put index.html back into the search line
+// document.addEventListener("DOMContentLoaded", () => {
+//   console.log("DOM is fully loaded");
+//  ===== Comes from Backend (service call or a file): =====
 const nodes = [
   {
     action: actions[0], // root due to order, todo: inforce it with check: root===true
@@ -133,6 +111,7 @@ const nodes = [
     childIds: [],
   },
 ];
+// result of layout function, that will live on the front
 
 // create nodesById, a dictionary of node_id -> node. lookup nodes==id
 const nodesById = {};
@@ -149,24 +128,25 @@ nodes.forEach((node) => {
 //   }
 // }
 
-// putting a list of destinations ids into each node by traveling along the edge:
-
+// mod nodes: Put a list of destinations ids into each Node by traveling along the edge:
 edges.forEach((edge) => {
   const startNode = nodesById[edge.startId]; // startNode is the parent: nodeObj with id=1
   startNode.childIds.push(edge.endId);
 });
 
-// Fn takes nodes by nodeId, sets a depth on every node in [nodes]
+// mod nodes: Fn takes nodes by nodeId, sets a depth on every node in [nodes]
 // todo: if we have a cycle it will run forever, quit if depth is set, return, or use {visited}
 function setDepth(parentId, depth, nodesById) {
-  const parent = nodesById[parentId]; // get a node
+  const parent = nodesById[parentId]; // get a node object in a form: {action: {…}, position: Array(2), nodeSize: Array(2), childIds: Array(8), depth: 0}
   parent["depth"] = depth;
-  for (childId of parent.childIds) {
+  // parent.childIds is in a form of  [9, 8, 7, 6, 5, 4, 3, 2]
+  for (let childId of parent.childIds) {
     setDepth(childId, depth + 1, nodesById); // self call
   }
 }
 
 const rootId = actions[0].id;
+console.log(139, rootId);
 setDepth(rootId, 0, nodesById);
 
 // calculate the level position offset (Y) by the depth of a node, need nodeH & top offset
@@ -174,7 +154,7 @@ setDepth(rootId, 0, nodesById);
 // 1 -> 45=(5+20H)+20space;
 // 2 -> 85=(5top+20H)+20space+(20H)+20space;
 nodes.forEach((node) => {
-  // take Y, modify Y = offset + d * (h + s)
+  // take Y, modify Y = rootoffset + depth * (h + spaceX)
   node.position[1] =
     ROOTOFFSET + node.depth * (node.nodeSize[1] + XSPACEBETWEENLEVELS);
 });
@@ -316,7 +296,7 @@ const createNodeObj = (node) => {
 };
 
 // ===================== layout code =====================
-// Relative Positioning: Each node is positioned relative to this central X coordinate.
+// todo: Relative Positioning: Each node is positioned relative to this central X coordinate.
 function calculateNodeX(node, depth, centerOfParent = null) {
   // todo:
   // use rectX = grandCentralX - rectWidth / 2
@@ -329,33 +309,34 @@ function calculateNodeX(node, depth, centerOfParent = null) {
 }
 
 // ================!!!!!! When page is fully loaded !!!!!!================
-window.onload = () => {
-  console.log("page is fully loaded");
+// window.onload = () => {
+console.log("page is fully loaded");
 
-  let svg = document.getElementById("svg-container");
-  // Get the center X coordinate of the scv
-  let svgWidth = svg.clientWidth;
-  // calculate the center of the screen & draw some things based of that
-  let grandCentralX = svgWidth / 2; // 200
+let svg = document.getElementById("svg-container");
+// Get the center X coordinate of the scv
+let svgWidth = svg.clientWidth;
+// calculate the center of the screen & draw some things based of that
+let grandCentralX = svgWidth / 2; // 200
 
-  // ============== DRAW CANVAS ==============
-  // default args: x = 0, y = 0, h = 400, w = 400, id = null
-  // svg.appendChild(createSvgCanvas({ id: "test_id" }));
+// ============== DRAW CANVAS ==============
+// default args: x = 0, y = 0, h = 400, w = 400, id = null
+// svg.appendChild(createSvgCanvas({ id: "test_id" }));
 
-  // ============== DRAW EDGES ==============
-  edges.forEach((edge) => {
-    const startNode = nodesById[edge.startId],
-      endNode = nodesById[edge.endId];
-    if (!startNode || !endNode) {
-      throw new Error(
-        `Cannot draw an edge: ${edge}, node doesn't exist in lookup dict`
-      );
-    }
-    svg.appendChild(createEdgeObj(startNode, endNode));
-  });
-  // ============== DRAW NODES ==============
-  // left Child it centered by a coinsedence, create a Fn to calc. positions of X for Nodes
-  nodes.forEach((node) => {
-    svg.appendChild(createNodeObj(node)); // order: grandchildren <- children <- root
-  });
-};
+// ============== DRAW EDGES ==============
+edges.forEach((edge) => {
+  const startNode = nodesById[edge.startId],
+    endNode = nodesById[edge.endId];
+  if (!startNode || !endNode) {
+    throw new Error(
+      `Cannot draw an edge: ${edge}, node doesn't exist in lookup dict`
+    );
+  }
+  svg.appendChild(createEdgeObj(startNode, endNode));
+});
+// ============== DRAW NODES ==============
+// left Child it centered by a coinsedence, create a Fn to calc. positions of X for Nodes
+nodes.forEach((node) => {
+  svg.appendChild(createNodeObj(node)); // order: grandchildren <- children <- root
+});
+//   };
+// });

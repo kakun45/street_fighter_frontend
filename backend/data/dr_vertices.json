@@ -1,0 +1,380 @@
+[
+  {
+    "id": 1,
+    "content": "C.LP",
+    "isRoot": false,
+    "xCoord": 0,
+    "yCoord": 8,
+    "other": {
+      "combo": "DR,C.LP",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 2,
+    "content": "DR",
+    "isRoot": true,
+    "xCoord": 0,
+    "yCoord": 9,
+    "other": {
+      "combo": "DR",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 3,
+    "content": "C.LK",
+    "isRoot": false,
+    "xCoord": -3,
+    "yCoord": 8,
+    "other": {
+      "combo": "DR,C.LK",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 4,
+    "content": "C.MK",
+    "isRoot": false,
+    "xCoord": 1,
+    "yCoord": 8,
+    "other": {
+      "combo": "DR,C.MK",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 5,
+    "content": "DF+MP",
+    "isRoot": false,
+    "xCoord": -2,
+    "yCoord": 8,
+    "other": {
+      "combo": "DR,DF+MP",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 6,
+    "content": "D+MK",
+    "isRoot": false,
+    "xCoord": 4,
+    "yCoord": 8,
+    "other": {
+      "combo": "DR,D+MK",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 7,
+    "content": "LK",
+    "isRoot": false,
+    "xCoord": 2,
+    "yCoord": 8,
+    "other": {
+      "combo": "DR,LK",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 8,
+    "content": "LP",
+    "isRoot": false,
+    "xCoord": 3,
+    "yCoord": 8,
+    "other": {
+      "combo": "DR,LP",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 9,
+    "content": "MP",
+    "isRoot": false,
+    "xCoord": -1,
+    "yCoord": 8,
+    "other": {
+      "combo": "DR,MP",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 10,
+    "content": "D+MP",
+    "isRoot": false,
+    "xCoord": 4,
+    "yCoord": 7,
+    "other": {
+      "combo": "DR,D+MK,D+MP",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 11,
+    "content": "MP",
+    "isRoot": false,
+    "xCoord": -3,
+    "yCoord": 6,
+    "other": {
+      "combo": "DR,DF+MP,MP,MP",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 12,
+    "content": "QCF+HP",
+    "isRoot": false,
+    "xCoord": -2,
+    "yCoord": 6,
+    "other": {
+      "combo": "DR,DF+MP,MP,QCF+HP",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 13,
+    "content": "QCB+PP",
+    "isRoot": false,
+    "xCoord": 4,
+    "yCoord": 6,
+    "other": {
+      "combo": "DR,D+MK,D+MP,QCB+PP",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 14,
+    "content": "QCF+PDR",
+    "isRoot": false,
+    "xCoord": 0,
+    "yCoord": 5,
+    "other": {
+      "combo": "DR,C.LK,MP,QCB+LP,QCF+PDR",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 15,
+    "content": "HK",
+    "isRoot": false,
+    "xCoord": -3,
+    "yCoord": 5,
+    "other": {
+      "combo": "DR,DF+MP,MP,MP,HK",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 16,
+    "content": "F+P",
+    "isRoot": false,
+    "xCoord": 4,
+    "yCoord": 5,
+    "other": {
+      "combo": "DR,D+MK,D+MP,QCB+PP,F+P",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 17,
+    "content": "LK",
+    "isRoot": false,
+    "xCoord": -1,
+    "yCoord": 4,
+    "other": {
+      "combo": "DR,C.LK,MP,QCB+LP,QCF+PDR,LK",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 18,
+    "content": "LP",
+    "isRoot": false,
+    "xCoord": 0,
+    "yCoord": 4,
+    "other": {
+      "combo": "DR,C.LK,MP,QCB+LP,QCF+PDR,LP",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 19,
+    "content": "SS(K)",
+    "isRoot": false,
+    "xCoord": -3,
+    "yCoord": 4,
+    "other": {
+      "combo": "DR,DF+MP,MP,MP,HK,SS(K)",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 20,
+    "content": "LVL2(H)",
+    "isRoot": false,
+    "xCoord": 4,
+    "yCoord": 4,
+    "other": {
+      "combo": "DR,D+MK,D+MP,QCB+PP,F+P,LVL2(H)",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 21,
+    "content": "D+LP",
+    "isRoot": false,
+    "xCoord": -3,
+    "yCoord": 3,
+    "other": {
+      "combo": "DR,DF+MP,MP,MP,HK,SS(K),D+LP",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 22,
+    "content": "LVL2(S)",
+    "isRoot": false,
+    "xCoord": 4,
+    "yCoord": 3,
+    "other": {
+      "combo": "DR,D+MK,D+MP,QCB+PP,F+P,LVL2(H),LVL2(S)",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 23,
+    "content": "QCF+HP",
+    "isRoot": false,
+    "xCoord": -3,
+    "yCoord": 2,
+    "other": {
+      "combo": "DR,DF+MP,MP,MP,HK,SS(K),D+LP,QCF+HP",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 24,
+    "content": "C.LP",
+    "isRoot": false,
+    "xCoord": -3,
+    "yCoord": 1,
+    "other": {
+      "combo": "DR,DF+MP,MP,MP,HK,SS(K),D+LP,QCF+HP,C.LP",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 25,
+    "content": "QCB+LP",
+    "isRoot": false,
+    "xCoord": 4,
+    "yCoord": 1,
+    "other": {
+      "combo": "DR,D+MK,D+MP,QCB+PP,F+P,LVL2(H),LVL2(S),QCB+LP",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 26,
+    "content": "QCF+PDR",
+    "isRoot": false,
+    "xCoord": 0,
+    "yCoord": 0,
+    "other": {
+      "combo": "DR,C.LK,MP,QCB+LP,QCF+PDR,LP,QCF+PDR",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  },
+  {
+    "id": 27,
+    "content": "QCB+LP",
+    "isRoot": false,
+    "xCoord": -1,
+    "yCoord": 0,
+    "other": {
+      "combo": "DR,C.LK,MP,QCB+LP,QCF+PDR,LK,QCB+LP",
+      "isRyu": false,
+      "isAki": true,
+      "isPoisioned": false,
+      "isElectrified": false
+    }
+  }
+]

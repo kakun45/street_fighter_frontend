@@ -87,3 +87,27 @@ Several global constants define layout properties:
 - A backend API running on `http://localhost:8000` that provides `actions` and `edges`
 
 - A browser environment for execution and visualization
+
+
+## D3.js Force-Directed Graph Visualization
+
+This project uses [D3.js](https://d3js.org/) to create a simple force-directed graph visualization. The visualization represents a sequence of moves, such as a chess opening, with nodes connected by links to illustrate relationships between them.
+
+### Features
+
+- **Force Simulation**: Uses `d3.forceSimulation()` to dynamically position nodes with `forceLink`, `forceManyBody`, and `forceCenter` forces.
+- **SVG Elements**: Nodes are displayed as rectangles with labels, while links are drawn as lines between them.
+- **Interactive Layout**: Nodes adjust their positions dynamically based on the simulation forces.
+
+### Getting Started
+
+To view the visualization, simply open the `index.html` file in a browser. No additional setup is required since the project loads D3.js from a CDN.
+
+### Code Overview
+
+- **Nodes and Links**: The data structure consists of nodes representing moves and links defining their connections.
+- **Force Simulation**: D3's force simulation manages the automatic positioning of nodes and links.
+- **SVG Rendering**: The visualization is created using SVG elements (`<rect>`, `<text>`, and `<line>`) styled with CSS.
+
+Feel free to modify the dataset or adjust the force simulation settings to explore different configurations!
+
